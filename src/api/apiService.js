@@ -14,3 +14,13 @@ export const getRoles = () => apiGet("/api/users/api/roles");
 export const createRole = (payload) => apiPost("/api/users/api/roles", payload);
 export const updateRole = (roleId, payload) => apiPatch(`/api/users/api/roles/${roleId}`, payload);
 export const deleteRole = (roleId) => apiDelete(`/api/users/api/roles/${roleId}`);
+
+// Payment APIs
+export const createPaymentCheckoutSession = (payload) =>
+  apiPost("/api/payments/checkout", payload);
+
+export const confirmPaymentSession = (payload) =>
+  apiPost("/api/payments/confirm", payload);
+
+export const getPaymentById = (paymentId) =>
+  apiGet(`/api/payments/${paymentId}`);

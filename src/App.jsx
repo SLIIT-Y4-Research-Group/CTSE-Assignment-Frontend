@@ -13,14 +13,19 @@ import PublicLayout from "./pages/PublicLayout.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import TicketsPage from "./pages/TicketsPage.jsx";
+import PaymentPage from "./pages/PaymentsPage.jsx";
+import SuccessPage from "./pages/SuccessPage.jsx";
+import CancelPage from "./pages/CancelPage.jsx";
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
   const roleName = user?.role?.name || user?.role || "";
   const isAdmin = roleName.toLowerCase() === "admin";
+
   if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
+
   return children;
 };
 
@@ -35,6 +40,9 @@ const App = () => {
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/payment" element={<PaymentPage />} />
+      <Route path="/success" element={<SuccessPage />} />
+      <Route path="/cancel" element={<CancelPage />} />
 
       <Route
         path="/dashboard"
