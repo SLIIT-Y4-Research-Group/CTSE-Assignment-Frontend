@@ -1,22 +1,69 @@
 ﻿import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
 
-const Sidebar = ({ open, onClose }) => {
-  const { user } = useAuth();
-  const roleName = user?.role?.name || user?.role || "";
-  const isAdmin = roleName.toLowerCase() === "admin";
+const MANAGEMENT_ROLES = new Set(["admin", "event_manager"]);
 
-  const links = [
-    { label: "Dashboard", to: "/dashboard" },
-    ...(isAdmin
-      ? [
-          { label: "Users", to: "/dashboard/users" },
-          { label: "Roles", to: "/dashboard/roles" }
-        ]
-      : []),
-    { label: "Profile", to: "/dashboard/profile" }
-  ];
+const normalizeRole = (role) => {
+  if (typeof role !== "string") return "";
+  return role.trim().toLowerCase();
+};
+
+const getUserRole = (user) => {
+  if (!user || typeof user !== "object") return "";
+
+  const directRole =
+    normalizeRole(user.role) ||
+    normalizeRole(user.userRole) ||
+    normalizeRole(user.role_name) ||
+    normalizeRole(user.user_type) ||
+    normalizeRole(user.type);
+
+  if (directRole) return directRole;
+
+  const nestedRole =
+    normalizeRole(user.role?.name) || normalizeRole(user.role?.role);
+  if (nestedRole) return nestedRole;
+
+  if (Array.isArray(user.roles)) {
+    const listRole = user.roles
+      .map(
+        (item) =>
+          normalizeRole(item) ||
+          normalizeRole(item?.name) ||
+          normalizeRole(item?.role),
+      )
+      .find(Boolean);
+    if (listRole) return listRole;
+  }
+
+  return "";
+};
+
+const Sidebar = ({ open, onClose }) => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const userRole = getUserRole(user);
+  const isManagementRole = MANAGEMENT_ROLES.has(userRole);
+
+  const links = isManagementRole
+    ? [
+        { label: "Dashboard", to: "/dashboard" },
+        { label: "Manage Events", to: "/dashboard/events" },
+        { label: "Add Event", to: "/dashboard/events/add" },
+        { label: "Profile", to: "/dashboard/profile" },
+      ]
+    : [
+        { label: "Dashboard", to: "/dashboard" },
+        { label: "Events", to: "/dashboard/events" },
+        { label: "Tickets", to: "/dashboard/tickets" },
+        { label: "Profile", to: "/dashboard/profile" },
+      ];
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <aside
@@ -24,10 +71,12 @@ const Sidebar = ({ open, onClose }) => {
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex h-full flex-col">
+      <div className="flex flex-col h-full">
         <div className="flex items-center justify-between px-6 py-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-ink-300">EventHub</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-ink-300">
+              EventHub
+            </p>
             <h1 className="text-lg font-semibold">User Management</h1>
           </div>
           <button
@@ -38,14 +87,16 @@ const Sidebar = ({ open, onClose }) => {
             ✕
           </button>
         </div>
-        <nav className="flex-1 space-y-1 px-4">
+        <nav className="flex-1 px-4 space-y-1">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
                 `flex items-center rounded-xl px-4 py-3 text-sm font-medium transition ${
-                  isActive ? "bg-ink-700 text-white" : "text-ink-200 hover:bg-ink-800"
+                  isActive
+                    ? "bg-ink-700 text-white"
+                    : "text-ink-200 hover:bg-ink-800"
                 }`
               }
             >
@@ -53,7 +104,15 @@ const Sidebar = ({ open, onClose }) => {
             </NavLink>
           ))}
         </nav>
-        <div className="px-6 pb-6 text-xs text-ink-400">© 2026 EventHub</div>
+        <div className="px-4 pb-6">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white transition bg-red-600 rounded-xl hover:bg-red-500"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </aside>
   );
