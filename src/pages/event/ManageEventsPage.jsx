@@ -354,6 +354,12 @@ const ManageEventsPage = () => {
                       >
                         Edit
                       </Link>
+                      <Link
+                        to={`/dashboard/events/${eventId}/tickets/new`}
+                        className="btn btn-primary"
+                      >
+                        Add Ticket
+                      </Link>
 
                       {status === "draft" ? (
                         <button

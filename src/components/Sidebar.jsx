@@ -51,6 +51,7 @@ const Sidebar = ({ open, onClose }) => {
         { label: "Dashboard", to: "/dashboard" },
         { label: "Manage Events", to: "/dashboard/events" },
         { label: "Add Event", to: "/dashboard/events/add" },
+        { label: "Manage Tickets", to: "/dashboard/tickets/manage" },
         { label: "Profile", to: "/dashboard/profile" },
       ]
     : [

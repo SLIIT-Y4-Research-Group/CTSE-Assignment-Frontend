@@ -21,6 +21,11 @@ import PaymentPage from "./pages/PaymentsPage.jsx";
 import SuccessPage from "./pages/SuccessPage.jsx";
 import CancelPage from "./pages/CancelPage.jsx";
 
+import AddTicketPage from "./pages/ticket/AddTicketPage.jsx";
+import ManageTicketsPage from "./pages/ticket/ManageTicketsPage.jsx";
+import EditTicketPage from "./pages/ticket/EditTicketPage.jsx";
+import TicketDetailsPage from "./pages/ticket/TicketDetailsPage.jsx";
+
 const MANAGEMENT_ROLES = new Set(["admin", "event_manager"]);
 
 const normalizeRole = (role) => {
@@ -132,6 +137,38 @@ const App = () => {
           element={
             <ManagementRoute>
               <EditEventPage />
+            </ManagementRoute>
+          }
+        />
+        <Route
+          path="events/:id/tickets/new"
+          element={
+            <ManagementRoute>
+              <AddTicketPage />
+            </ManagementRoute>
+          }
+        />
+        <Route
+          path="/dashboard/tickets/manage"
+          element={
+            <ManagementRoute>
+              <ManageTicketsPage />
+            </ManagementRoute>
+          }
+        />
+        <Route
+          path="/dashboard/tickets/:id/edit"
+          element={
+            <ManagementRoute>
+              <EditTicketPage />
+            </ManagementRoute>
+          }
+        />
+        <Route
+          path="/dashboard/tickets/:id"
+          element={
+            <ManagementRoute>
+              <TicketDetailsPage />
             </ManagementRoute>
           }
         />
