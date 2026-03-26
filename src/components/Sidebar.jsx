@@ -59,12 +59,13 @@ const Sidebar = ({ open, onClose }) => {
               { label: "Roles", to: "/dashboard/roles" },
             ]
           : []),
+        { label: "Manage Tickets", to: "/dashboard/tickets/manage" },
         { label: "Profile", to: "/dashboard/profile" },
       ]
     : [
         { label: "Dashboard", to: "/dashboard" },
         { label: "Events", to: "/dashboard/events" },
-        { label: "Tickets", to: "/dashboard/tickets" },
+        { label: "My Bookings", to: "/dashboard/mybookings" },
         { label: "Profile", to: "/dashboard/profile" },
       ];
 
