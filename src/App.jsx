@@ -25,6 +25,10 @@ import AddTicketPage from "./pages/ticket/AddTicketPage.jsx";
 import ManageTicketsPage from "./pages/ticket/ManageTicketsPage.jsx";
 import EditTicketPage from "./pages/ticket/EditTicketPage.jsx";
 import TicketDetailsPage from "./pages/ticket/TicketDetailsPage.jsx";
+import ViewTicketByEvent from "./pages/ticket/ViewTicketByEvent.jsx";
+
+import MyBookingPage from "./pages/booking/MyBookingPage.jsx";
+import BookingPaymentPage from "./pages/booking/BookingPaymentPage.jsx";
 
 const MANAGEMENT_ROLES = new Set(["admin", "event_manager"]);
 
@@ -105,6 +109,8 @@ const App = () => {
         <Route path="events/add" element={<AddEventPage />} />
         <Route path="events/:id/edit" element={<EditEventPage />} />
         <Route path="tickets" element={<TicketsPage />} />
+        
+
       </Route>
 
       <Route path="/login" element={<Login />} />
@@ -112,6 +118,7 @@ const App = () => {
       <Route path="/payment" element={<PaymentPage />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
+
 
       <Route
         path="/dashboard"
@@ -124,6 +131,10 @@ const App = () => {
         <Route index element={<OverviewPage />} />
         <Route path="events" element={<DashboardEventsRoute />} />
         <Route path="tickets" element={<TicketsPage />} />
+        <Route path="mybookings" element={<MyBookingPage />} />
+        <Route path="bookingCart" element={<BookingPaymentPage />} />
+        <Route path="events/:eventId/tickets" element={<ViewTicketByEvent />} />
+
         <Route
           path="events/add"
           element={

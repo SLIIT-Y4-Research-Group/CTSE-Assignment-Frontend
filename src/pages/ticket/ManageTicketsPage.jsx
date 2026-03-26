@@ -154,7 +154,7 @@ const ManageTicketsPage = () => {
         </p>
       </div>
 
-      <div className="p-6 card">
+      {/* <div className="p-6 card">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="text-xs font-semibold text-ink-600">Event</label>
@@ -192,7 +192,7 @@ const ManageTicketsPage = () => {
             Clear filters
           </button>
         </div>
-      </div>
+      </div> */}
 
       {loading && <Loading label="Loading tickets..." />}
 

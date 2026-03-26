@@ -281,14 +281,17 @@ const EventsPage = () => {
                   <Link to={`/events/${eventId}`} className="btn btn-secondary">
                     View Details
                   </Link>
-                  <button
+                  {/* <button
                     type="button"
                     className="btn btn-ghost"
                     disabled={isBooking || !eventId}
                     onClick={() => handleBookNow(eventId)}
                   >
                     {isBooking ? "Checking..." : "Book Now"}
-                  </button>
+                  </button> */}
+                  <Link to={`/dashboard/events/${eventId}/tickets`} className="btn btn-secondary">
+                    View Ticket Types
+                  </Link>
                 </div>
 
                 {bookingMessage ? (
