@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 const initialForm = {
   event_id: "",
@@ -33,6 +35,8 @@ const fieldLabels = {
 
 const AddTicketPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
   const { id: eventIdFromUrl } = useParams();
   const [form, setForm] = useState(initialForm);
   const [events, setEvents] = useState([]);
@@ -99,6 +103,10 @@ const AddTicketPage = () => {
       await axios.post(`${apiBase}/tickets`, form);
       setSuccessMessage("Ticket created successfully!");
       setForm(initialForm);
+
+      setTimeout(() => {
+      navigate("/dashboard/tickets/manage");
+    }, 1000);
     } catch (err) {
       console.error(err);
       setError(err?.response?.data?.message || "Failed to create ticket.");

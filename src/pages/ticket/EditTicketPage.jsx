@@ -4,6 +4,7 @@ import ErrorState from "../../components/ErrorState.jsx";
 import Loading from "../../components/Loading.jsx";
 import { getAllEvents, getEventById } from "../../api/eventService.js";
 import { getTicketById, updateTicket } from "../../api/ticketService.js";
+import { useNavigate } from "react-router-dom";
 
 const initialForm = {
   event_id: "",
@@ -32,6 +33,7 @@ const fieldLabels = {
 
 const EditTicketPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -132,6 +134,9 @@ const EditTicketPage = () => {
 
       await updateTicket(id, payload);
       setSuccessMessage("Ticket updated successfully!");
+      setTimeout(() => {
+      navigate("/dashboard/tickets/manage");
+    }, 1000);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to update ticket.");
     } finally {

@@ -27,3 +27,7 @@ export const deleteTicket = async (ticketId) => {
 export const searchTickets = async (params) => {
   return axios.get(API_BASE, { params });
 };
+
+export const getTicketsByEvent = async (eventId) => {
+  return axios.get(`${API_BASE}/event/${eventId}`);
+};
