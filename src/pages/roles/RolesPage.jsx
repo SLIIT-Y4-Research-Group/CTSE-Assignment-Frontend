@@ -1,5 +1,10 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
-import { createRole, deleteRole, getRoles, updateRole } from "../../api/apiService.js";
+import {
+  createRole,
+  deleteRole,
+  getRoles,
+  updateRole,
+} from "../../api/apiService.js";
 import Loading from "../../components/Loading.jsx";
 import ErrorState from "../../components/ErrorState.jsx";
 
@@ -7,7 +12,10 @@ const normalizePermissions = (permissions) => {
   if (!permissions) return [];
   if (Array.isArray(permissions)) return permissions;
   if (typeof permissions === "string") {
-    return permissions.split(",").map((p) => p.trim()).filter(Boolean);
+    return permissions
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -46,7 +54,7 @@ const RolesPage = () => {
     setError("");
     const payload = {
       name: form.name,
-      permissions: normalizePermissions(form.permissions)
+      permissions: normalizePermissions(form.permissions),
     };
 
     try {
@@ -67,7 +75,7 @@ const RolesPage = () => {
     setEditingId(role.id || role._id);
     setForm({
       name: role.name || role.title || "",
-      permissions: normalizePermissions(role.permissions).join(", ")
+      permissions: normalizePermissions(role.permissions).join(", "),
     });
   };
 
@@ -84,44 +92,77 @@ const RolesPage = () => {
   const rolesWithPermissions = useMemo(() => {
     return roles.map((role) => ({
       ...role,
-      permissions: normalizePermissions(role.permissions)
+      permissions: normalizePermissions(role.permissions),
     }));
   }, [roles]);
 
   if (loading) return <Loading label="Loading roles..." />;
 
   if (error) {
-    return <ErrorState message={error} action={<button className="btn btn-ghost w-fit" onClick={loadRoles}>Retry</button>} />;
+    return (
+      <ErrorState
+        message={error}
+        action={
+          <button className="btn btn-ghost w-fit" onClick={loadRoles}>
+            Retry
+          </button>
+        }
+      />
+    );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+    <div className="roles-admin-shell grid gap-6 xl:grid-cols-[1.35fr,0.85fr]">
       <div className="space-y-6">
-        <div className="card p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-ink-400">Roles</p>
+        <div className="roles-admin-header card p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-ink-400">
+            Roles
+          </p>
           <h3 className="text-xl font-semibold text-ink-900">Role catalog</h3>
-          <p className="mt-2 text-sm text-ink-500">Maintain the permissions assigned to each role.</p>
+          <p className="mt-2 text-sm text-ink-500">
+            Maintain the permissions assigned to each role.
+          </p>
         </div>
+
         <div className="grid gap-4">
           {rolesWithPermissions.map((role) => (
-            <div key={role.id || role._id} className="card p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h4 className="text-lg font-semibold text-ink-800">{role.name || role.title || "Role"}</h4>
-                  <p className="text-xs text-ink-400">{(role.permissions || []).length} permissions</p>
+            <div
+              key={role.id || role._id}
+              className="roles-role-card card p-5 sm:p-6"
+            >
+              <div className="roles-role-header flex flex-wrap items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="text-lg font-semibold text-ink-800">
+                    {role.name || role.title || "Role"}
+                  </h4>
+                  <p className="text-xs text-ink-400">
+                    {(role.permissions || []).length} permissions
+                  </p>
                 </div>
-                <div className="flex gap-2">
-                  <button className="btn btn-ghost" onClick={() => startEdit(role)}>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="btn btn-secondary roles-action-btn"
+                    onClick={() => startEdit(role)}
+                  >
                     Edit
                   </button>
-                  <button className="btn btn-ghost text-gold-700" onClick={() => handleDelete(role.id || role._id)}>
+
+                  <button
+                    className="btn roles-action-btn roles-action-btn-danger"
+                    onClick={() => handleDelete(role.id || role._id)}
+                  >
                     Delete
                   </button>
                 </div>
               </div>
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {(role.permissions || ["No permissions"]).map((permission) => (
-                  <span key={permission} className="rounded-full bg-ink-100 px-3 py-1 text-xs font-semibold text-ink-600">
+                  <span
+                    key={permission}
+                    className="roles-permission-chip rounded-full bg-ink-100 px-3 py-1 text-xs font-semibold text-ink-600"
+                  >
                     {permission}
                   </span>
                 ))}
@@ -130,18 +171,33 @@ const RolesPage = () => {
           ))}
         </div>
       </div>
-      <div className="card p-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">{editingId ? "Edit role" : "Create role"}</p>
-        <h3 className="text-xl font-semibold text-ink-900">{editingId ? "Update permissions" : "Add a new role"}</h3>
+
+      <div className="roles-form-panel card p-6 sm:p-7">
+        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">
+          {editingId ? "Edit role" : "Create role"}
+        </p>
+        <h3 className="text-xl font-semibold text-ink-900">
+          {editingId ? "Update permissions" : "Add a new role"}
+        </h3>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="text-xs font-semibold text-ink-600">Role name</label>
-            <input className="input mt-2" name="name" value={form.name} onChange={handleChange} required />
+            <label className="text-xs font-semibold text-ink-600">
+              Role name
+            </label>
+            <input
+              className="input roles-form-input mt-2"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div>
-            <label className="text-xs font-semibold text-ink-600">Permissions (comma-separated)</label>
+            <label className="text-xs font-semibold text-ink-600">
+              Permissions (comma-separated)
+            </label>
             <textarea
-              className="input mt-2 min-h-[120px]"
+              className="input roles-form-input mt-2 min-h-[140px]"
               name="permissions"
               value={form.permissions}
               onChange={handleChange}

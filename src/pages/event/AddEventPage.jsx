@@ -187,242 +187,366 @@ const AddEventPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="card p-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">
+    <div className="flex flex-col w-full max-w-5xl gap-8 mx-auto add-event-shell">
+      <section className="card add-event-hero p-7">
+        <p className="add-event-eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-ink-400">
           Events
         </p>
-        <h1 className="text-2xl font-semibold text-ink-900">Add new event</h1>
-        <p className="mt-2 text-sm text-ink-500">
-          Create an event and let the backend keep its default draft status.
+        <h1 className="mt-2 text-3xl font-semibold text-ink-900">
+          Add new event
+        </h1>
+        <p className="max-w-2xl mt-2 text-sm leading-6 text-ink-500">
+          Create and save a new event with its details, schedule, and venue
+          information.
         </p>
-      </div>
+      </section>
 
-      <div className="card p-6">
-        <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold text-ink-600">
-              Title *
-            </label>
-            <input
-              className="input mt-2"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              required
-            />
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <section className="p-6 card add-event-section sm:p-7">
+          <div className="mb-5 add-event-section__header">
+            <p className="add-event-section__eyebrow">Section 1</p>
+            <h2 className="text-lg font-semibold text-ink-900">Event basics</h2>
+            <p className="mt-1 text-sm text-ink-500">
+              Define the main content, URL slug, and event details.
+            </p>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-600">Slug *</label>
-            <input
-              className="input mt-2"
-              name="slug"
-              value={form.slug}
-              onChange={handleChange}
-              required
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 form-field sm:col-span-2">
+              <label
+                htmlFor="title"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Title <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="title"
+                className="input"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="slug"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Slug <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="slug"
+                className="input"
+                name="slug"
+                value={form.slug}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="category"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Category <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="category"
+                className="input"
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field sm:col-span-2">
+              <label
+                htmlFor="short_description"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Short description
+              </label>
+              <input
+                id="short_description"
+                className="input"
+                name="short_description"
+                value={form.short_description}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="space-y-2 form-field sm:col-span-2">
+              <label
+                htmlFor="description"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Description <span className="text-gold-700">*</span>
+              </label>
+              <textarea
+                id="description"
+                className="py-3 input min-h-32"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="p-6 card add-event-section sm:p-7">
+          <div className="mb-5 add-event-section__header">
+            <p className="add-event-section__eyebrow">Section 2</p>
+            <h2 className="text-lg font-semibold text-ink-900">
+              Schedule and location
+            </h2>
+            <p className="mt-1 text-sm text-ink-500">
+              Add date, time, and venue information for attendees.
+            </p>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-600">
-              Category *
-            </label>
-            <input
-              className="input mt-2"
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              required
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="date"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Date <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="date"
+                className="input"
+                type="date"
+                name="date"
+                value={form.date}
+                onChange={handleChange}
+                min={todayDate}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="time"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Time <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="time"
+                className="input"
+                type="time"
+                name="time"
+                value={form.time}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="venue_name"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Venue name <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="venue_name"
+                className="input"
+                name="venue_name"
+                value={form.venue_name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="city"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                City <span className="text-gold-700">*</span>
+              </label>
+              <input
+                id="city"
+                className="input"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="p-6 card add-event-section sm:p-7">
+          <div className="mb-5 add-event-section__header">
+            <p className="add-event-section__eyebrow">Section 3</p>
+            <h2 className="text-lg font-semibold text-ink-900">Media</h2>
+            <p className="mt-1 text-sm text-ink-500">
+              Upload a banner image to represent your event visually.
+            </p>
           </div>
 
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold text-ink-600">
-              Short description
-            </label>
-            <input
-              className="input mt-2"
-              name="short_description"
-              value={form.short_description}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold text-ink-600">
-              Description *
-            </label>
-            <textarea
-              className="input mt-2 min-h-28"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ink-600">Date *</label>
-            <input
-              className="input mt-2"
-              type="date"
-              name="date"
-              value={form.date}
-              onChange={handleChange}
-              min={todayDate}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ink-600">Time *</label>
-            <input
-              className="input mt-2"
-              type="time"
-              name="time"
-              value={form.time}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ink-600">
-              Venue name *
-            </label>
-            <input
-              className="input mt-2"
-              name="venue_name"
-              value={form.venue_name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ink-600">City *</label>
-            <input
-              className="input mt-2"
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold text-ink-600">
+          <div className="space-y-4">
+            <label
+              htmlFor="banner"
+              className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+            >
               Banner image
             </label>
-            {form.banner_image ? (
-              <p className="mt-2 text-xs font-medium text-ink-600">
-                Change image
+
+            <label
+              htmlFor="banner"
+              className="flex flex-col items-center justify-center gap-2 px-6 py-8 text-center transition border border-dashed cursor-pointer add-event-upload rounded-2xl border-ink-300 bg-ink-50 hover:border-ink-400 hover:bg-white"
+            >
+              <p className="text-sm font-semibold text-ink-700">
+                {form.banner_image
+                  ? "Replace banner image"
+                  : "Upload banner image"}
               </p>
-            ) : null}
+              <p className="text-xs text-ink-500">
+                Click to choose an image file (JPG, PNG, WEBP).
+              </p>
+            </label>
+
             <input
-              className="input mt-2"
+              id="banner"
+              className="sr-only"
               type="file"
               name="banner"
               accept="image/*"
               onChange={handleBannerFileChange}
             />
-            <p className="mt-1 text-xs text-ink-500">
-              Select an image to upload. Only image files are supported.
-            </p>
+
             {!bannerUploading && !bannerUploadError && !form.banner_image ? (
-              <div className="mt-3 rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-xs text-ink-500">
+              <div className="px-4 py-3 text-xs border add-event-upload__state rounded-xl border-ink-200 bg-ink-50 text-ink-500">
                 No image selected yet.
               </div>
             ) : null}
+
             {bannerUploading ? (
-              <div className="mt-3 rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-xs text-ink-600">
+              <div className="px-4 py-3 text-xs border add-event-upload__state rounded-xl border-ink-200 bg-ink-50 text-ink-600">
                 Uploading image...
               </div>
             ) : null}
+
             {bannerUploadError ? (
-              <div className="mt-3 rounded-xl border border-gold-200 bg-gold-50 px-4 py-3 text-xs text-gold-700">
+              <div className="px-4 py-3 text-xs border add-event-upload__state rounded-xl border-gold-200 bg-gold-50 text-gold-700">
                 {bannerUploadError}
               </div>
             ) : null}
+
             {!bannerUploading && !bannerUploadError && bannerPreviewSrc ? (
-              <div className="mt-3 rounded-xl border border-ink-200 bg-white p-3">
-                <p className="mb-2 text-xs font-medium text-ink-600">
+              <div className="p-3 bg-white border add-event-preview rounded-2xl border-ink-200">
+                <p className="mb-2 text-xs font-medium tracking-wide uppercase text-ink-500">
                   Uploaded image preview
                 </p>
                 <img
                   src={bannerPreviewSrc}
                   alt="Event banner preview"
-                  className="h-32 w-full rounded-lg object-cover sm:h-40"
+                  className="object-cover w-full h-36 rounded-xl sm:h-48"
                 />
               </div>
             ) : null}
           </div>
+        </section>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-600">
-              Organizer
-            </label>
-            <p className="mt-2 text-xs text-ink-500">
-              Organizer is set automatically from the logged-in account.
+        <section className="p-6 card add-event-section sm:p-7">
+          <div className="mb-5 add-event-section__header">
+            <p className="add-event-section__eyebrow">Section 4</p>
+            <h2 className="text-lg font-semibold text-ink-900">
+              Organizer details
+            </h2>
+            <p className="mt-1 text-sm text-ink-500">
+              Organizer is auto-filled from the current account.
             </p>
-            <input
-              type="hidden"
-              name="organizer_id"
-              value={form.organizer_id}
-              readOnly
-            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-600">
-              Organizer contact email
-            </label>
-            <input
-              className="input mt-2"
-              type="email"
-              name="organizer_contact_email"
-              value={form.organizer_contact_email}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="inline-flex items-center gap-3 text-sm text-ink-700">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 form-field">
+              <label className="text-xs font-semibold tracking-wide uppercase text-ink-500">
+                Organizer
+              </label>
+              <div className="px-3 py-3 text-sm border add-event-account rounded-xl border-ink-200 bg-ink-50 text-ink-600">
+                <p className="text-xs font-semibold tracking-wide uppercase text-ink-500">
+                  Account linked
+                </p>
+                <p className="mt-1 text-sm text-ink-700">
+                  Organizer is set automatically from the logged-in account.
+                </p>
+              </div>
               <input
-                type="checkbox"
-                name="is_featured"
-                checked={form.is_featured}
-                onChange={handleChange}
-                className="h-4 w-4 rounded border-ink-300"
+                type="hidden"
+                name="organizer_id"
+                value={form.organizer_id}
+                readOnly
               />
-              Mark as featured event
-            </label>
+            </div>
+
+            <div className="space-y-2 form-field">
+              <label
+                htmlFor="organizer_contact_email"
+                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
+              >
+                Organizer contact email
+              </label>
+              <input
+                id="organizer_contact_email"
+                className="input"
+                type="email"
+                name="organizer_contact_email"
+                value={form.organizer_contact_email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="px-4 py-3 bg-white border sm:col-span-2 rounded-xl border-ink-200">
+              <label className="inline-flex items-center gap-3 text-sm font-medium text-ink-700">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={form.is_featured}
+                  onChange={handleChange}
+                  className="w-4 h-4 rounded border-ink-300"
+                />
+                Mark as featured event
+              </label>
+            </div>
           </div>
+        </section>
 
-          {error ? (
-            <div className="sm:col-span-2 rounded-xl border border-gold-200 bg-gold-50 px-4 py-3 text-sm text-gold-700">
-              {error}
-            </div>
-          ) : null}
+        {error ? (
+          <div className="px-4 py-3 text-sm border rounded-xl border-gold-200 bg-gold-50 text-gold-700">
+            {error}
+          </div>
+        ) : null}
 
-          {successMessage ? (
-            <div className="sm:col-span-2 rounded-xl border border-mint-200 bg-mint-50 px-4 py-3 text-sm text-mint-700">
-              {successMessage}
-            </div>
-          ) : null}
+        {successMessage ? (
+          <div className="px-4 py-3 text-sm border rounded-xl border-mint-200 bg-mint-50 text-mint-700">
+            {successMessage}
+          </div>
+        ) : null}
 
-          <div className="sm:col-span-2">
+        <section className="p-5 card add-event-submit sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-ink-600">
+              Review required fields before creating the event.
+            </p>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary min-w-40"
               disabled={submitting || bannerUploading}
             >
               {submitting ? "Creating event..." : "Create event"}
             </button>
           </div>
-        </form>
-      </div>
+        </section>
+      </form>
     </div>
   );
 };

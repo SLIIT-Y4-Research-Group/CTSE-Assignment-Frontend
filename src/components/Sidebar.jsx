@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 const MANAGEMENT_ROLES = new Set(["admin", "event_manager"]);
 
@@ -45,12 +46,19 @@ const Sidebar = ({ open, onClose }) => {
   const { user, logout } = useAuth();
   const userRole = getUserRole(user);
   const isManagementRole = MANAGEMENT_ROLES.has(userRole);
+  const isAdmin = userRole === "admin";
 
   const links = isManagementRole
     ? [
         { label: "Dashboard", to: "/dashboard" },
         { label: "Manage Events", to: "/dashboard/events" },
         { label: "Add Event", to: "/dashboard/events/add" },
+        ...(isAdmin
+          ? [
+              { label: "Users", to: "/dashboard/users" },
+              { label: "Roles", to: "/dashboard/roles" },
+            ]
+          : []),
         { label: "Profile", to: "/dashboard/profile" },
       ]
     : [
@@ -67,7 +75,7 @@ const Sidebar = ({ open, onClose }) => {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-ink-900 text-white shadow-2xl transition lg:static lg:translate-x-0 ${
+      className={`app-sidebar fixed inset-y-0 left-0 z-40 w-64 transform bg-ink-900 text-white shadow-2xl transition lg:static lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -77,7 +85,7 @@ const Sidebar = ({ open, onClose }) => {
             <p className="text-xs uppercase tracking-[0.2em] text-ink-300">
               EventHub
             </p>
-            <h1 className="text-lg font-semibold">User Management</h1>
+            {/* <h1 className="text-lg font-semibold">User Management</h1> */}
           </div>
           <button
             className="lg:hidden text-ink-200 hover:text-white"
@@ -104,7 +112,8 @@ const Sidebar = ({ open, onClose }) => {
             </NavLink>
           ))}
         </nav>
-        <div className="px-4 pb-6">
+        <div className="px-4 pb-6 space-y-3">
+          <ThemeToggle compact />
           <button
             type="button"
             onClick={handleLogout}
