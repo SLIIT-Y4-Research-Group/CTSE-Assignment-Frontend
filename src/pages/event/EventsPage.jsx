@@ -2,8 +2,75 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorState from "../../components/ErrorState.jsx";
 import Loading from "../../components/Loading.jsx";
+import EventCategorySelector, {
+  EVENT_CATEGORIES,
+} from "../../components/EventCategorySelector.jsx";
 import { formatEventDate, formatEventTime } from "../../utils/dateTime.js";
 import { getAllEvents, validateEvent } from "../../api/eventService.js";
+import { getAllTickets } from "../../api/ticketService.js";
+
+const getTicketEventId = (ticket) => {
+  const eventId = ticket?.event_id;
+  if (!eventId) return "";
+  if (typeof eventId === "string") return eventId;
+  if (typeof eventId === "object") return eventId?._id || eventId?.id || "";
+  return "";
+};
+
+const formatPrice = (value) => {
+  if (!Number.isFinite(value)) return "";
+  if (Number.isInteger(value)) return String(value);
+  return value.toFixed(2);
+};
+
+const buildTicketPricingMap = (events, tickets) => {
+  const eventIds = new Set(
+    (events || []).map((event) => event?._id).filter(Boolean),
+  );
+
+  const map = {};
+
+  (tickets || []).forEach((ticket) => {
+    const eventId = getTicketEventId(ticket);
+    if (!eventIds.has(eventId)) return;
+
+    const price = Number(ticket?.price);
+    if (!Number.isFinite(price) || price < 0) return;
+
+    const currency = ticket?.currency || "LKR";
+    const typeKey = String(ticket?.ticket_type || "default").toLowerCase();
+
+    if (!map[eventId]) {
+      map[eventId] = {
+        hasTickets: true,
+        lowestPrice: price,
+        currency,
+        ticketTypes: new Set([typeKey]),
+      };
+      return;
+    }
+
+    map[eventId].ticketTypes.add(typeKey);
+    if (price < map[eventId].lowestPrice) {
+      map[eventId].lowestPrice = price;
+      map[eventId].currency = currency;
+    }
+  });
+
+  eventIds.forEach((eventId) => {
+    if (!map[eventId]) {
+      map[eventId] = {
+        hasTickets: false,
+      };
+      return;
+    }
+
+    map[eventId].multipleTypes = map[eventId].ticketTypes.size > 1;
+    delete map[eventId].ticketTypes;
+  });
+
+  return map;
+};
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -13,12 +80,13 @@ const EventsPage = () => {
   const [error, setError] = useState("");
   const [filters, setFilters] = useState({
     city: "",
-    category: "",
+    category: EVENT_CATEGORIES[0],
     date: "",
   });
   const [bannerLoadError, setBannerLoadError] = useState({});
   const [bookingLoading, setBookingLoading] = useState({});
   const [bookingFeedback, setBookingFeedback] = useState({});
+  const [ticketPricingByEvent, setTicketPricingByEvent] = useState({});
 
   const resolveBannerUrl = (imagePath) => {
     if (!imagePath) return "";
@@ -42,9 +110,21 @@ const EventsPage = () => {
       );
       setAllPublishedEvents(publishedEvents);
       setBannerLoadError({});
+
+      try {
+        const ticketsResponse = await getAllTickets();
+        const tickets =
+          ticketsResponse?.data?.tickets || ticketsResponse?.data || [];
+        setTicketPricingByEvent(
+          buildTicketPricingMap(publishedEvents, tickets),
+        );
+      } catch (ticketErr) {
+        setTicketPricingByEvent(buildTicketPricingMap(publishedEvents, []));
+      }
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load events.");
       setAllPublishedEvents([]);
+      setTicketPricingByEvent({});
     } finally {
       setLoading(false);
     }
@@ -64,7 +144,7 @@ const EventsPage = () => {
   };
 
   const handleClearFilters = () => {
-    setFilters({ city: "", category: "", date: "" });
+    setFilters({ city: "", category: EVENT_CATEGORIES[0], date: "" });
   };
 
   const filteredEvents = useMemo(() => {
@@ -78,7 +158,7 @@ const EventsPage = () => {
       const eventDate = (event?.date || "").slice(0, 10);
 
       if (city && !eventCity.includes(city)) return false;
-      if (category && !eventCategory.includes(category)) return false;
+      if (category && eventCategory !== category) return false;
       if (date && eventDate !== date) return false;
       return true;
     });
@@ -147,6 +227,19 @@ const EventsPage = () => {
 
       <div className="p-6 card">
         <div className="grid gap-4 md:grid-cols-3">
+          <div className="md:col-span-3">
+            <label className="text-xs font-semibold text-ink-600">
+              Category
+            </label>
+            <div className="mt-2">
+              <EventCategorySelector
+                value={filters.category}
+                onChange={(category) =>
+                  setFilters((prev) => ({ ...prev, category }))
+                }
+              />
+            </div>
+          </div>
           <div>
             <label className="text-xs font-semibold text-ink-600">City</label>
             <input
@@ -155,18 +248,6 @@ const EventsPage = () => {
               value={filters.city}
               onChange={handleFilterChange}
               placeholder="Search by city"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-ink-600">
-              Category
-            </label>
-            <input
-              className="mt-2 input"
-              name="category"
-              value={filters.category}
-              onChange={handleFilterChange}
-              placeholder="Search by category"
             />
           </div>
           <div>
@@ -231,6 +312,13 @@ const EventsPage = () => {
             const showBanner = Boolean(bannerUrl) && !bannerLoadError[eventId];
             const isBooking = Boolean(bookingLoading[eventId]);
             const bookingMessage = bookingFeedback[eventId];
+            const pricing = ticketPricingByEvent[eventId];
+            const hasTicketPricing = Boolean(pricing?.hasTickets);
+            const ticketPriceText = hasTicketPricing
+              ? pricing.multipleTypes
+                ? `${formatPrice(pricing.lowestPrice)} ${pricing.currency} Upwards`
+                : `From ${formatPrice(pricing.lowestPrice)} ${pricing.currency}`
+              : "";
 
             return (
               <div key={event._id || event.title} className="p-6 card">
@@ -276,6 +364,17 @@ const EventsPage = () => {
                     <span className="font-medium text-ink-800">Category:</span>{" "}
                     {event.category || "-"}
                   </p>
+                  {hasTicketPricing ? (
+                    <p>
+                      <span className="font-medium text-ink-800">Tickets:</span>{" "}
+                      {ticketPriceText}
+                    </p>
+                  ) : (
+                    <p>
+                      <span className="font-medium text-ink-800">Tickets:</span>{" "}
+                      Tickets not available
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-2 mt-4">
                   <Link to={`/events/${eventId}`} className="btn btn-secondary">
@@ -289,7 +388,10 @@ const EventsPage = () => {
                   >
                     {isBooking ? "Checking..." : "Book Now"}
                   </button> */}
-                  <Link to={`/dashboard/events/${eventId}/tickets`} className="btn btn-secondary">
+                  <Link
+                    to={`/dashboard/events/${eventId}/tickets`}
+                    className="btn btn-secondary"
+                  >
                     View Ticket Types
                   </Link>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createEvent, uploadEventBanner } from "../../api/eventService.js";
 import { useAuth } from "../../auth/AuthContext.jsx";
+import { EVENT_CATEGORIES } from "../../components/EventCategorySelector.jsx";
 
 const initialForm = {
   title: "",
@@ -44,6 +45,8 @@ const fieldLabels = {
   organizer_id: "Organizer",
   organizer_contact_email: "Organizer contact email",
 };
+
+const isValidCategory = (value) => EVENT_CATEGORIES.includes(value);
 
 const createSlugFromTitle = (value) =>
   value
@@ -108,6 +111,11 @@ const AddEventPage = () => {
         return `${fieldLabels[field]} is required.`;
       }
     }
+
+    if (!isValidCategory(form.category)) {
+      return "Category must be one of Concerts, Theatre, or Family.";
+    }
+
     return "";
   };
 
@@ -179,8 +187,27 @@ const AddEventPage = () => {
       setIsSlugManuallyEdited(false);
       setBannerUploadError("");
     } catch (err) {
+      if (import.meta.env.DEV) {
+        console.error("[AddEventPage] createEvent failed", {
+          message: err?.message,
+          code: err?.code,
+          response: err?.response,
+          request: err?.request,
+        });
+      }
+
       const backendMessage = err?.response?.data?.message;
-      setError(backendMessage || "Failed to create event. Please try again.");
+      const isNetworkOrCorsError =
+        err?.code === "ERR_NETWORK" ||
+        (!err?.response && err?.message === "Network Error");
+
+      setError(
+        typeof backendMessage === "string" && backendMessage.trim()
+          ? backendMessage
+          : isNetworkOrCorsError
+            ? "Request blocked by server/CORS. Check backend CORS or gateway config."
+            : "Failed to create event. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -247,20 +274,23 @@ const AddEventPage = () => {
             </div>
 
             <div className="space-y-2 form-field">
-              <label
-                htmlFor="category"
-                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
-              >
+              <label className="text-xs font-semibold tracking-wide uppercase text-ink-500">
                 Category <span className="text-gold-700">*</span>
               </label>
-              <input
-                id="category"
+              <select
                 className="input"
                 name="category"
                 value={form.category}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="">Select category</option>
+                {EVENT_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2 form-field sm:col-span-2">

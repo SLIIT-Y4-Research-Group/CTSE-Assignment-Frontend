@@ -1,23 +1,24 @@
-import axios from "axios";
+import { apiDelete, apiGet, apiPost } from "./client.js";
 
-const API_BASE = "http://localhost:3003/api/bookings";
+const BOOKINGS_BASE_PATH = "/api/bookings";
 
 export const createBooking = async (bookingData) => {
-  return axios.post(API_BASE, bookingData);
+  const { user_id, ...payload } = bookingData || {};
+  return apiPost(BOOKINGS_BASE_PATH, payload);
 };
 
 export const getBookingById = async (bookingId) => {
-  return axios.get(`${API_BASE}/${bookingId}`);
+  return apiGet(`${BOOKINGS_BASE_PATH}/${bookingId}`);
 };
 
 export const getUserBookings = async (userId) => {
-  return axios.get(`${API_BASE}/user/${userId}`);
+  return apiGet(`${BOOKINGS_BASE_PATH}/user/${userId}`);
 };
 
 export const cancelBooking = async (bookingId) => {
-  return axios.delete(`${API_BASE}/${bookingId}`);
+  return apiDelete(`${BOOKINGS_BASE_PATH}/${bookingId}`);
 };
 
 export const confirmPayment = async (data) => {
-  return axios.post(`${API_BASE}/confirm-payment`, data);
+  return apiPost(`${BOOKINGS_BASE_PATH}/confirm-payment`, data);
 };

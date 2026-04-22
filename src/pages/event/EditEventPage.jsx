@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ErrorState from "../../components/ErrorState.jsx";
 import Loading from "../../components/Loading.jsx";
 import { getEventById, updateEvent } from "../../api/eventService.js";
+import { EVENT_CATEGORIES } from "../../components/EventCategorySelector.jsx";
 
 const initialForm = {
   title: "",
@@ -41,6 +42,8 @@ const fieldLabels = {
   city: "City",
   category: "Category",
 };
+
+const isValidCategory = (value) => EVENT_CATEGORIES.includes(value);
 
 const EditEventPage = () => {
   const { id } = useParams();
@@ -115,6 +118,11 @@ const EditEventPage = () => {
         return `${fieldLabels[field]} is required.`;
       }
     }
+
+    if (!isValidCategory(form.category)) {
+      return "Category must be one of Concerts, Theatre, or Family.";
+    }
+
     return "";
   };
 
@@ -229,13 +237,20 @@ const EditEventPage = () => {
             <label className="text-xs font-semibold text-ink-600">
               Category *
             </label>
-            <input
+            <select
               className="mt-2 input"
               name="category"
               value={form.category}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Select category</option>
+              {EVENT_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="sm:col-span-2">

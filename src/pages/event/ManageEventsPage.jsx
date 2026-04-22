@@ -11,6 +11,8 @@ import {
   searchManagedEvents,
 } from "../../api/eventService.js";
 
+const EVENT_CATEGORIES = ["Concerts", "Theatre", "Family"];
+
 const MANAGEMENT_ROLES = new Set(["event_manager", "admin"]);
 
 const normalizeRole = (role) => {
@@ -217,13 +219,19 @@ const ManageEventsPage = () => {
             <label className="text-xs font-semibold tracking-wide uppercase text-ink-500">
               Category
             </label>
-            <input
+            <select
               className="input"
               name="category"
               value={filters.category}
               onChange={handleFilterChange}
-              placeholder="Search by category"
-            />
+            >
+              <option value="">All categories</option>
+              {EVENT_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-2">

@@ -1,7 +1,6 @@
 ﻿import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
-import ThemeToggle from "./ThemeToggle.jsx";
 
 const MANAGEMENT_ROLES = new Set(["admin", "event_manager"]);
 
@@ -114,7 +113,6 @@ const Sidebar = ({ open, onClose }) => {
           ))}
         </nav>
         <div className="px-4 pb-6 space-y-3">
-          <ThemeToggle compact />
           <button
             type="button"
             onClick={handleLogout}

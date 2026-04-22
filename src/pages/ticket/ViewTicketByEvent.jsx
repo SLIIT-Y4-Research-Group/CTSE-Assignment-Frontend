@@ -4,17 +4,16 @@ import Loading from "../../components/Loading.jsx";
 import ErrorState from "../../components/ErrorState.jsx";
 import { getTicketsByEvent, deleteTicket } from "../../api/ticketService.js";
 import { getEventById } from "../../api/eventService.js";
+import { createBooking } from "../../api/bookingService.js";
 import { formatEventDate, formatEventTime } from "../../utils/dateTime.js";
-import axios from "axios";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const eventServiceBaseUrl = "http://localhost:3002";
-const apiBase = "http://localhost:3003/api"; 
 
 const ViewTicketByEvent = () => {
-const { user } = useAuth(); 
- const currentUser = user || JSON.parse(localStorage.getItem("user"));
+  const { user } = useAuth();
+  const currentUser = user || JSON.parse(localStorage.getItem("user"));
   const { eventId } = useParams();
   const [event, setEvent] = useState({});
   const [tickets, setTickets] = useState([]);
@@ -31,7 +30,9 @@ const { user } = useAuth();
   const resolveBannerUrl = (imagePath) => {
     if (!imagePath) return "";
     if (/^https?:\/\//i.test(imagePath)) return imagePath;
-    const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    const normalizedPath = imagePath.startsWith("/")
+      ? imagePath
+      : `/${imagePath}`;
     return `${eventServiceBaseUrl}${normalizedPath}`;
   };
 
@@ -50,7 +51,8 @@ const { user } = useAuth();
       setTickets(ticketRes?.data || []);
 
       const eventRes = await getEventById(eventId);
-      const ev = eventRes?.data?.event || eventRes?.data?.data || eventRes?.data || {};
+      const ev =
+        eventRes?.data?.event || eventRes?.data?.data || eventRes?.data || {};
       setEvent(ev);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load data");
@@ -74,35 +76,36 @@ const { user } = useAuth();
   const closeModal = () => setModalTicket(null);
 
   const handleBooking = async () => {
-  if (!modalTicket) return;
+    if (!modalTicket) return;
 
-  const available = modalTicket.quantity - (modalTicket.sold || 0);
-  if (quantity < 1 || quantity > available) {
-    setBookingError("Invalid quantity");
-    return;
-  }
+    const available = modalTicket.quantity - (modalTicket.sold || 0);
+    if (quantity < 1 || quantity > available) {
+      setBookingError("Invalid quantity");
+      return;
+    }
 
-  setSubmitting(true);
-  setBookingError("");
-  setBookingSuccess("");
+    setSubmitting(true);
+    setBookingError("");
+    setBookingSuccess("");
 
-  try {
-    const payload = {
-      user_id: currentUser?._id,
-      tickets: [{ ticket_id: modalTicket._id, quantity }],
-    };
+    try {
+      const payload = {
+        tickets: [{ ticket_id: modalTicket._id, quantity }],
+      };
 
-    await axios.post(`${apiBase}/bookings`, payload);
-    setBookingSuccess("Booking created successfully!");
-    loadData(); // refresh tickets
-    setTimeout(() => closeModal(), 1000);
-  } catch (err) {
-    console.error(err);
-    setBookingError(err?.response?.data?.message || "Failed to create booking");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      await createBooking(payload);
+      setBookingSuccess("Booking created successfully!");
+      loadData(); // refresh tickets
+      setTimeout(() => closeModal(), 1000);
+    } catch (err) {
+      console.error(err);
+      setBookingError(
+        err?.response?.data?.message || "Failed to create booking",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <Loading label="Loading tickets..." />;
   if (error)
@@ -124,7 +127,9 @@ const { user } = useAuth();
     <div className="space-y-6">
       {/* HEADER */}
       <div className="p-6 card">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">Tickets</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">
+          Tickets
+        </p>
         <h1 className="text-2xl font-semibold text-ink-900">
           {event.title || "Event"} - Tickets
         </h1>
@@ -150,7 +155,7 @@ const { user } = useAuth();
       )} */}
 
       {/* EVENT INFO */}
-      <div className="p-6 card space-y-2 text-sm text-ink-600">
+      <div className="p-6 space-y-2 text-sm card text-ink-600">
         <p>
           <span className="font-medium text-ink-800">Date:</span>{" "}
           {formatEventDate(event.date)}
@@ -164,7 +169,8 @@ const { user } = useAuth();
           {event.venue_name || "-"}
         </p>
         <p>
-          <span className="font-medium text-ink-800">City:</span> {event.city || "-"}
+          <span className="font-medium text-ink-800">City:</span>{" "}
+          {event.city || "-"}
         </p>
         <p>
           <span className="font-medium text-ink-800">Category:</span>{" "}
@@ -185,7 +191,9 @@ const { user } = useAuth();
             const available = ticket.quantity - (ticket.sold || 0);
             return (
               <div key={ticket._id} className="p-6 card">
-                <h3 className="text-lg font-semibold text-ink-900">{ticket.ticket_type}</h3>
+                <h3 className="text-lg font-semibold text-ink-900">
+                  {ticket.ticket_type}
+                </h3>
 
                 <div className="mt-2 space-y-1 text-sm text-ink-600">
                   <p>
@@ -197,10 +205,12 @@ const { user } = useAuth();
                     {ticket.quantity}
                   </p>
                   <p>
-                    <span className="font-medium text-ink-800">Sold:</span> {ticket.sold || 0}
+                    <span className="font-medium text-ink-800">Sold:</span>{" "}
+                    {ticket.sold || 0}
                   </p>
                   <p>
-                    <span className="font-medium text-ink-800">Available:</span> {available}
+                    <span className="font-medium text-ink-800">Available:</span>{" "}
+                    {available}
                   </p>
                 </div>
 
@@ -221,13 +231,11 @@ const { user } = useAuth();
       {/* MODAL */}
       {modalTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl p-6 w-96 space-y-4">
+          <div className="p-6 space-y-4 bg-white rounded-xl w-96">
             <h2 className="text-xl font-semibold text-ink-900">
               Book: {modalTicket.ticket_type}
             </h2>
-            <p>
-              Available: {modalTicket.quantity - (modalTicket.sold || 0)}
-            </p>
+            <p>Available: {modalTicket.quantity - (modalTicket.sold || 0)}</p>
 
             <div>
               <label className="text-sm font-medium">Quantity</label>
@@ -237,7 +245,7 @@ const { user } = useAuth();
                 max={modalTicket.quantity - (modalTicket.sold || 0)}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
-                className="input mt-2 w-full"
+                className="w-full mt-2 input"
               />
             </div>
 

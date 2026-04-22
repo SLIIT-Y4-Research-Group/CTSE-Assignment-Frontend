@@ -45,7 +45,7 @@ const EventManagementCard = ({
           <img
             src={bannerUrl}
             alt={event.title || "Event banner"}
-            className="h-full w-full object-cover"
+            className="object-cover w-full h-full"
             onError={onBannerError}
           />
         ) : (
@@ -54,11 +54,13 @@ const EventManagementCard = ({
       </div>
 
       <div className="event-manage-card__content">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="event-manage-card__title">
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <h3 className="event-manage-card__title min-w-0 break-words">
             {event.title || "Untitled event"}
           </h3>
-          <span className={getStatusBadgeClass(status)}>{statusLabel}</span>
+          <span className={`${getStatusBadgeClass(status)} shrink-0`}>
+            {statusLabel}
+          </span>
         </div>
 
         <dl className="event-manage-card__meta-grid">
@@ -94,56 +96,70 @@ const EventManagementCard = ({
           </div>
         </dl>
 
-        <div className="event-manage-card__actions">
-          <div className="event-manage-card__actions-main">
-            <Link to={`/events/${eventId}`} className="btn btn-primary">
-              View details
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/events/${eventId}`}
+              className="btn btn-primary whitespace-nowrap"
+            >
+              View Details
             </Link>
 
-            {canManageEvents ? (
+            {canManageEvents && (
               <Link
                 to={`/events/${eventId}/edit`}
-                className="btn btn-secondary"
+                className="btn btn-ghost whitespace-nowrap"
               >
                 Edit
               </Link>
-            ) : null}
+            )}
+
+            {canManageEvents && (
+              <EventCardActionMenu disabled={isActionRunning || !eventId}>
+                {status === "draft" ? (
+                  <button
+                    type="button"
+                    className="event-action-menu__item"
+                    disabled={isActionRunning || !eventId}
+                    onClick={onPublish}
+                  >
+                    {activeAction === "publish" ? "Publishing..." : "Publish"}
+                  </button>
+                ) : null}
+
+                {status !== "cancelled" ? (
+                  <button
+                    type="button"
+                    className="event-action-menu__item"
+                    disabled={isActionRunning || !eventId}
+                    onClick={onCancel}
+                  >
+                    {activeAction === "cancel" ? "Cancelling..." : "Cancel"}
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  className="event-action-menu__item event-action-menu__item-danger"
+                  disabled={isActionRunning || !eventId}
+                  onClick={onDelete}
+                >
+                  {activeAction === "delete" ? "Deleting..." : "Delete"}
+                </button>
+              </EventCardActionMenu>
+            )}
           </div>
 
-          {canManageEvents ? (
-            <EventCardActionMenu disabled={isActionRunning || !eventId}>
-              {status === "draft" ? (
-                <button
-                  type="button"
-                  className="event-action-menu__item"
-                  disabled={isActionRunning || !eventId}
-                  onClick={onPublish}
-                >
-                  {activeAction === "publish" ? "Publishing..." : "Publish"}
-                </button>
-              ) : null}
-
-              {status !== "cancelled" ? (
-                <button
-                  type="button"
-                  className="event-action-menu__item"
-                  disabled={isActionRunning || !eventId}
-                  onClick={onCancel}
-                >
-                  {activeAction === "cancel" ? "Cancelling..." : "Cancel"}
-                </button>
-              ) : null}
-
-              <button
-                type="button"
-                className="event-action-menu__item event-action-menu__item-danger"
-                disabled={isActionRunning || !eventId}
-                onClick={onDelete}
+          {canManageEvents && (
+            <div className="flex items-center gap-3">
+              <Link
+                to={`/dashboard/events/${eventId}/tickets/new`}
+                className="btn btn-ghost whitespace-nowrap"
               >
-                {activeAction === "delete" ? "Deleting..." : "Delete"}
-              </button>
-            </EventCardActionMenu>
-          ) : null}
+                Create Ticket
+              </Link>
+            </div>
+          )}
         </div>
 
         {actionError ? (

@@ -19,6 +19,7 @@ export const applyTheme = (theme) => {
   if (typeof document === "undefined") return;
 
   const safeTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.classList.toggle("dark", safeTheme === "dark");
   document.body.classList.toggle("dark-theme", safeTheme === "dark");
   document.documentElement.setAttribute("data-theme", safeTheme);
 

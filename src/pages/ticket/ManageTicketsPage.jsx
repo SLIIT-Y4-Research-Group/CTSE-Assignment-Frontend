@@ -3,13 +3,18 @@ import { Link } from "react-router-dom";
 import Loading from "../../components/Loading.jsx";
 import ErrorState from "../../components/ErrorState.jsx";
 import { useAuth } from "../../auth/AuthContext.jsx";
-import { getAllTickets, deleteTicket, searchTickets } from "../../api/ticketService.js";
-import { getAllEvents } from "../../api/eventService.js"; // <-- import
+import {
+  getAllTickets,
+  deleteTicket,
+  searchTickets,
+} from "../../api/ticketService.js";
+import { getManageAllEvents } from "../../api/eventService.js";
 
 const MANAGEMENT_ROLES = new Set(["event_manager", "admin"]);
 const TICKET_TYPES = ["Regular", "VIP", "Early Bird", "Student"];
 
-const normalizeRole = (role) => (typeof role === "string" ? role.trim().toLowerCase() : "");
+const normalizeRole = (role) =>
+  typeof role === "string" ? role.trim().toLowerCase() : "";
 
 const getUserRole = (authUser) => {
   if (!authUser || typeof authUser !== "object") return "";
@@ -27,7 +32,12 @@ const getUserRole = (authUser) => {
 
   if (Array.isArray(authUser.roles)) {
     return authUser.roles
-      .map((item) => normalizeRole(item) || normalizeRole(item?.name) || normalizeRole(item?.role))
+      .map(
+        (item) =>
+          normalizeRole(item) ||
+          normalizeRole(item?.name) ||
+          normalizeRole(item?.role),
+      )
       .find(Boolean);
   }
 
@@ -63,25 +73,27 @@ const ManageTicketsPage = () => {
   }, []);
 
   const loadEventsMap = useCallback(async () => {
-  try {
-    const response = await getAllEvents();
+    try {
+      const response = await getManageAllEvents();
 
-    const events =
-      response?.data?.events ||
-      response?.data?.data ||
-      response?.data ||
-      [];
+      const events =
+        response?.data?.events || response?.data?.data || response?.data || [];
 
-    const map = {};
-    events.forEach((event) => {
-      map[event._id] = event.title || "Untitled Event";
-    });
+      const map = {};
+      if (Array.isArray(events)) {
+        events.forEach((event) => {
+          const eventId = event?._id || event?.id;
+          if (!eventId) return;
 
-    setEventsMap(map);
-  } catch (err) {
-    console.error("Failed to load events:", err);
-  }
-}, []);
+          map[eventId] = event?.title || event?.name || "Untitled Event";
+        });
+      }
+
+      setEventsMap(map);
+    } catch (err) {
+      console.error("Failed to load events:", err);
+    }
+  }, []);
 
   useEffect(() => {
     loadTickets();
@@ -147,7 +159,9 @@ const ManageTicketsPage = () => {
   return (
     <div className="space-y-6">
       <div className="p-6 card">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">Tickets</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-ink-400">
+          Tickets
+        </p>
         <h1 className="text-2xl font-semibold text-ink-900">Manage Tickets</h1>
         <p className="mt-2 text-sm text-ink-500">
           View, edit, and delete tickets. Event titles are loaded from events.
@@ -200,7 +214,11 @@ const ManageTicketsPage = () => {
         <ErrorState
           message={error}
           action={
-            <button type="button" className="btn btn-secondary w-fit" onClick={loadTickets}>
+            <button
+              type="button"
+              className="btn btn-secondary w-fit"
+              onClick={loadTickets}
+            >
               Retry
             </button>
           }
@@ -214,7 +232,9 @@ const ManageTicketsPage = () => {
       )}
 
       {!loading && !error && tickets.length === 0 && (
-        <div className="p-6 text-sm card text-ink-500">No tickets available right now.</div>
+        <div className="p-6 text-sm card text-ink-500">
+          No tickets available right now.
+        </div>
       )}
 
       {!loading && !error && tickets.length > 0 && (
@@ -226,28 +246,39 @@ const ManageTicketsPage = () => {
 
             return (
               <div key={ticketId} className="p-6 card">
-                <h3 className="text-lg font-semibold text-ink-900">{ticket.ticket_type}</h3>
+                <h3 className="text-lg font-semibold text-ink-900">
+                  {ticket.ticket_type}
+                </h3>
                 <div className="mt-2 space-y-1 text-sm text-ink-600">
                   <p>
-                    <span className="font-medium text-ink-800">Event:</span> {eventTitle}
+                    <span className="font-medium text-ink-800">Event:</span>{" "}
+                    {eventTitle}
                   </p>
                   <p>
-                    <span className="font-medium text-ink-800">Price:</span> {ticket.price || "-"} {ticket.currency || "LKR"}
+                    <span className="font-medium text-ink-800">Price:</span>{" "}
+                    {ticket.price || "-"} {ticket.currency || "LKR"}
                   </p>
                   <p>
-                    <span className="font-medium text-ink-800">Quantity:</span> {ticket.quantity || "-"}
+                    <span className="font-medium text-ink-800">Quantity:</span>{" "}
+                    {ticket.quantity || "-"}
                   </p>
                   <p>
-                    <span className="font-medium text-ink-800">Max per user:</span> {ticket.max_per_user || "-"}
+                    <span className="font-medium text-ink-800">
+                      Max per user:
+                    </span>{" "}
+                    {ticket.max_per_user || "-"}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {canManageTickets && (
                     <>
-                    <Link to={`/dashboard/tickets/${ticketId}`} className="btn btn-ghost">
-                                        View Details
-                                      </Link>
+                      <Link
+                        to={`/dashboard/tickets/${ticketId}`}
+                        className="btn btn-ghost"
+                      >
+                        View Details
+                      </Link>
                       <Link
                         to={`/dashboard/tickets/${ticketId}/edit`}
                         className="btn btn-ghost"
