@@ -45,6 +45,14 @@ const fieldLabels = {
 
 const isValidCategory = (value) => EVENT_CATEGORIES.includes(value);
 
+const createSlugFromTitle = (value) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
 const EditEventPage = () => {
   const { id } = useParams();
   const todayDate = new Date().toISOString().split("T")[0];
@@ -78,7 +86,7 @@ const EditEventPage = () => {
 
       setForm({
         title: eventData.title || "",
-        slug: eventData.slug || "",
+        slug: eventData.slug || createSlugFromTitle(eventData.title || ""),
         short_description: eventData.short_description || "",
         description: eventData.description || "",
         date: eventData.date || "",
@@ -108,6 +116,7 @@ const EditEventPage = () => {
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+      ...(name === "title" ? { slug: createSlugFromTitle(value) } : {}),
     }));
   };
 
@@ -149,9 +158,10 @@ const EditEventPage = () => {
 
     setSaving(true);
     try {
+      const nextSlug = (form.slug || createSlugFromTitle(form.title)).trim();
       const payload = {
         title: form.title.trim(),
-        slug: form.slug.trim(),
+        slug: nextSlug,
         short_description: form.short_description.trim(),
         description: form.description.trim(),
         date: form.date,
@@ -217,17 +227,6 @@ const EditEventPage = () => {
               className="mt-2 input"
               name="title"
               value={form.title}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-ink-600">Slug *</label>
-            <input
-              className="mt-2 input"
-              name="slug"
-              value={form.slug}
               onChange={handleChange}
               required
             />

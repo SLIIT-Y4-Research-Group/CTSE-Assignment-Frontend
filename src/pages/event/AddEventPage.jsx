@@ -61,7 +61,6 @@ const AddEventPage = () => {
   const eventServiceBaseUrl = "http://localhost:3002";
   const todayDate = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState(initialForm);
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerUploadError, setBannerUploadError] = useState("");
@@ -91,16 +90,10 @@ const AddEventPage = () => {
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
 
-    if (name === "slug") {
-      setIsSlugManuallyEdited(true);
-    }
-
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-      ...(name === "title" && !isSlugManuallyEdited
-        ? { slug: createSlugFromTitle(value) }
-        : {}),
+      ...(name === "title" ? { slug: createSlugFromTitle(value) } : {}),
     }));
   };
 
@@ -170,7 +163,7 @@ const AddEventPage = () => {
       const payload = {
         ...form,
         title: form.title.trim(),
-        slug: form.slug.trim(),
+        slug: (form.slug || createSlugFromTitle(form.title)).trim(),
         short_description: form.short_description.trim(),
         description: form.description.trim(),
         venue_name: form.venue_name.trim(),
@@ -184,7 +177,6 @@ const AddEventPage = () => {
       await createEvent(payload);
       setSuccessMessage("Event created successfully");
       setForm(initialForm);
-      setIsSlugManuallyEdited(false);
       setBannerUploadError("");
     } catch (err) {
       if (import.meta.env.DEV) {
@@ -234,7 +226,7 @@ const AddEventPage = () => {
             <p className="add-event-section__eyebrow">Section 1</p>
             <h2 className="text-lg font-semibold text-ink-900">Event basics</h2>
             <p className="mt-1 text-sm text-ink-500">
-              Define the main content, URL slug, and event details.
+              Define the main content and event details.
             </p>
           </div>
 
@@ -251,23 +243,6 @@ const AddEventPage = () => {
                 className="input"
                 name="title"
                 value={form.title}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="space-y-2 form-field">
-              <label
-                htmlFor="slug"
-                className="text-xs font-semibold tracking-wide uppercase text-ink-500"
-              >
-                Slug <span className="text-gold-700">*</span>
-              </label>
-              <input
-                id="slug"
-                className="input"
-                name="slug"
-                value={form.slug}
                 onChange={handleChange}
                 required
               />
