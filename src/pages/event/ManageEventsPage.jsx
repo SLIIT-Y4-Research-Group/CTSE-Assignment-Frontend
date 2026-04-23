@@ -10,6 +10,7 @@ import {
   publishEvent,
   searchManagedEvents,
 } from "../../api/eventService.js";
+import { runEventActionToast } from "../../utils/eventActionToast.js";
 
 const EVENT_CATEGORIES = ["Concerts", "Theatre", "Family"];
 
@@ -64,9 +65,7 @@ const ManageEventsPage = () => {
     status: "",
   });
   const [eventActionLoading, setEventActionLoading] = useState({});
-  const [eventActionError, setEventActionError] = useState({});
   const [bannerLoadError, setBannerLoadError] = useState({});
-  const [pageSuccessMessage, setPageSuccessMessage] = useState("");
 
   const userRole = getUserRole(user);
   const canManageEvents = MANAGEMENT_ROLES.has(userRole);
@@ -145,29 +144,38 @@ const ManageEventsPage = () => {
   };
 
   const handleEventAction = async (eventId, actionName, actionFn) => {
-    setPageSuccessMessage("");
-    setEventActionError((prev) => ({ ...prev, [eventId]: "" }));
     setEventActionLoading((prev) => ({ ...prev, [eventId]: actionName }));
 
-    try {
-      await actionFn();
-      await loadEvents();
+    const actionMessages = {
+      publish: {
+        loading: "Publishing event...",
+        success: "Event published successfully.",
+        errorFallback: "Failed to publish event.",
+      },
+      cancel: {
+        loading: "Cancelling event...",
+        success: "Event cancelled successfully.",
+        errorFallback: "Failed to cancel event.",
+      },
+      delete: {
+        loading: "Deleting event...",
+        success: "Event deleted successfully.",
+        errorFallback: "Failed to delete event.",
+      },
+    };
 
-      const successMessages = {
-        publish: "Event published successfully",
-        cancel: "Event cancelled successfully",
-        delete: "Event deleted successfully",
-      };
-      setPageSuccessMessage(
-        successMessages[actionName] || "Event action completed successfully",
-      );
-    } catch (err) {
-      setEventActionError((prev) => ({
-        ...prev,
-        [eventId]:
-          err?.response?.data?.message || `Failed to ${actionName} event.`,
-      }));
-      setPageSuccessMessage("");
+    try {
+      await runEventActionToast({
+        action: actionFn,
+        messages: actionMessages[actionName] || {
+          loading: "Processing event action...",
+          success: "Event action completed successfully.",
+          errorFallback: `Failed to ${actionName} event.`,
+        },
+      });
+      await loadEvents();
+    } catch {
+      // Error toast is handled centrally by runEventActionToast.
     } finally {
       setEventActionLoading((prev) => ({ ...prev, [eventId]: "" }));
     }
@@ -302,12 +310,6 @@ const ManageEventsPage = () => {
         />
       ) : null}
 
-      {!loading && !error && pageSuccessMessage ? (
-        <div className="px-4 py-3 text-sm border rounded-2xl border-mint-200 bg-mint-50 text-mint-700">
-          {pageSuccessMessage}
-        </div>
-      ) : null}
-
       {!loading && !error && events.length === 0 ? (
         <div className="px-6 py-8 text-sm card rounded-2xl text-ink-500">
           No events available right now.
@@ -370,7 +372,6 @@ const ManageEventsPage = () => {
                     deleteEvent(eventId),
                   );
                 }}
-                actionError={eventActionError[eventId]}
               />
             );
           })}

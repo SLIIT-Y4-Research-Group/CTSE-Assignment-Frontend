@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 import ErrorState from "../../components/ErrorState.jsx";
 import Loading from "../../components/Loading.jsx";
 import { getEventById, updateEvent } from "../../api/eventService.js";
 import { EVENT_CATEGORIES } from "../../components/EventCategorySelector.jsx";
+import { getApiErrorMessage } from "../../utils/eventActionToast.js";
 
 const initialForm = {
   title: "",
@@ -53,15 +55,41 @@ const createSlugFromTitle = (value) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+const toDateInputValue = (value) => {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toISOString().split("T")[0];
+};
+
+const toTimeInputValue = (value) => {
+  if (!value) return "";
+
+  if (typeof value === "string") {
+    if (value.includes("T")) {
+      const [, timePart = ""] = value.split("T");
+      return timePart.slice(0, 5);
+    }
+    if (/^\d{2}:\d{2}$/.test(value)) return value;
+    if (/^\d{2}:\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
+  }
+
+  const parsed = new Date(`1970-01-01T${value}`);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return `${String(parsed.getHours()).padStart(2, "0")}:${String(
+    parsed.getMinutes(),
+  ).padStart(2, "0")}`;
+};
+
 const EditEventPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const todayDate = new Date().toISOString().split("T")[0];
 
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   const loadEvent = useCallback(async () => {
     if (!id) {
@@ -89,8 +117,8 @@ const EditEventPage = () => {
         slug: eventData.slug || createSlugFromTitle(eventData.title || ""),
         short_description: eventData.short_description || "",
         description: eventData.description || "",
-        date: eventData.date || "",
-        time: eventData.time || "",
+        date: toDateInputValue(eventData.date),
+        time: toTimeInputValue(eventData.time),
         venue_name: eventData.venue_name || "",
         city: eventData.city || "",
         category: eventData.category || "",
@@ -138,7 +166,6 @@ const EditEventPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
-    setSuccessMessage("");
 
     if (!id) {
       setError("Event ID is missing.");
@@ -175,11 +202,20 @@ const EditEventPage = () => {
         banner_image: form.banner_image,
       };
 
-      await updateEvent(id, payload);
-      setSuccessMessage("Event updated successfully");
+      await toast.promise(updateEvent(id, payload), {
+        loading: "Updating event...",
+        success: "Event updated successfully. Redirecting...",
+        error: (err) =>
+          getApiErrorMessage(err, "Failed to update event. Please try again."),
+      });
+
+      window.setTimeout(() => {
+        navigate("/dashboard/events");
+      }, 1000);
     } catch (err) {
-      const backendMessage = err?.response?.data?.message;
-      setError(backendMessage || "Failed to update event. Please try again.");
+      setError(
+        getApiErrorMessage(err, "Failed to update event. Please try again."),
+      );
     } finally {
       setSaving(false);
     }
@@ -368,12 +404,6 @@ const EditEventPage = () => {
           {error ? (
             <div className="px-4 py-3 text-sm border sm:col-span-2 rounded-xl border-gold-200 bg-gold-50 text-gold-700">
               {error}
-            </div>
-          ) : null}
-
-          {successMessage ? (
-            <div className="px-4 py-3 text-sm border sm:col-span-2 rounded-xl border-mint-200 bg-mint-50 text-mint-700">
-              {successMessage}
             </div>
           ) : null}
 

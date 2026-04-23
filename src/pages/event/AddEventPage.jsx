@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createEvent, uploadEventBanner } from "../../api/eventService.js";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { EVENT_CATEGORIES } from "../../components/EventCategorySelector.jsx";
+import {
+  getApiErrorMessage,
+  runEventActionToast,
+} from "../../utils/eventActionToast.js";
 
 const initialForm = {
   title: "",
@@ -58,6 +63,7 @@ const createSlugFromTitle = (value) =>
 
 const AddEventPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const eventServiceBaseUrl = "http://localhost:3002";
   const todayDate = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState(initialForm);
@@ -65,7 +71,6 @@ const AddEventPage = () => {
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerUploadError, setBannerUploadError] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const organizerId = user?._id || "";
@@ -118,7 +123,6 @@ const AddEventPage = () => {
 
     setBannerUploadError("");
     setError("");
-    setSuccessMessage("");
     setBannerUploading(true);
 
     try {
@@ -145,7 +149,6 @@ const AddEventPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
-    setSuccessMessage("");
 
     const validationError = validateRequired();
     if (validationError) {
@@ -159,6 +162,7 @@ const AddEventPage = () => {
     }
 
     setSubmitting(true);
+
     try {
       const payload = {
         ...form,
@@ -174,10 +178,21 @@ const AddEventPage = () => {
         organizer_contact_email: form.organizer_contact_email.trim(),
       };
 
-      await createEvent(payload);
-      setSuccessMessage("Event created successfully");
-      setForm(initialForm);
-      setBannerUploadError("");
+      await runEventActionToast({
+        action: () => createEvent(payload),
+        messages: {
+          loading: "Creating event and sending notifications...",
+          success: "Event created successfully. Redirecting...",
+          errorFallback: "Failed to create event. Please try again.",
+        },
+        onSuccess: () => {
+          setForm(initialForm);
+          setBannerUploadError("");
+          window.setTimeout(() => {
+            navigate("/dashboard/events");
+          }, 1000);
+        },
+      });
     } catch (err) {
       if (import.meta.env.DEV) {
         console.error("[AddEventPage] createEvent failed", {
@@ -188,17 +203,8 @@ const AddEventPage = () => {
         });
       }
 
-      const backendMessage = err?.response?.data?.message;
-      const isNetworkOrCorsError =
-        err?.code === "ERR_NETWORK" ||
-        (!err?.response && err?.message === "Network Error");
-
       setError(
-        typeof backendMessage === "string" && backendMessage.trim()
-          ? backendMessage
-          : isNetworkOrCorsError
-            ? "Request blocked by server/CORS. Check backend CORS or gateway config."
-            : "Failed to create event. Please try again.",
+        getApiErrorMessage(err, "Failed to create event. Please try again."),
       );
     } finally {
       setSubmitting(false);
@@ -528,12 +534,6 @@ const AddEventPage = () => {
         {error ? (
           <div className="px-4 py-3 text-sm border rounded-xl border-gold-200 bg-gold-50 text-gold-700">
             {error}
-          </div>
-        ) : null}
-
-        {successMessage ? (
-          <div className="px-4 py-3 text-sm border rounded-xl border-mint-200 bg-mint-50 text-mint-700">
-            {successMessage}
           </div>
         ) : null}
 
