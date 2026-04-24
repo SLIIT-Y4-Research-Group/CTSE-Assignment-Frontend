@@ -122,6 +122,7 @@ const EventsPage = () => {
         setTicketPricingByEvent(buildTicketPricingMap(publishedEvents, []));
       }
     } catch (err) {
+      console.log("Failed to load events:", err);
       setError(err?.response?.data?.message || "Failed to load events.");
       setAllPublishedEvents([]);
       setTicketPricingByEvent({});

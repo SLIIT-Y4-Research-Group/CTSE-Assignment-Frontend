@@ -21,6 +21,7 @@ const Register = () => {
       await register(form);
       navigate("/dashboard/users", { replace: true });
     } catch (err) {
+      console.error("Registration error:", err);
       setError(
         err?.response?.data?.message ||
           "Unable to register. Please review your details.",

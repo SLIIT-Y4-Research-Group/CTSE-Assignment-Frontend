@@ -1,6 +1,6 @@
 import api, { apiDelete, apiGet, apiPatch, apiPost } from "./client.js";
 
-const EVENTS_BASE_PATH = "/api/events";
+const EVENTS_BASE_PATH = "/api/events/api/events";
 
 export async function createEvent(data) {
   return apiPost(EVENTS_BASE_PATH, data);
