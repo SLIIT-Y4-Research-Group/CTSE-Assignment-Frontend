@@ -77,9 +77,7 @@ const HomePage = () => {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-ink-400">
             Event management platform
           </p>
-          <h1 className="max-w-2xl text-4xl font-semibold leading-tight text-ink-900 lg:text-5xl">
-            Discover events, book tickets, and manage experiences in one place.
-          </h1>
+          
           <p className="max-w-xl text-base leading-7 text-ink-600">
             EventHub helps attendees explore upcoming events and gives
             organizers the tools to publish, manage, and grow events with
