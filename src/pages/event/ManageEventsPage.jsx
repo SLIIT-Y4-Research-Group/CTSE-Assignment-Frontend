@@ -89,6 +89,7 @@ const ManageEventsPage = () => {
       setEvents(response?.data?.events || []);
       setBannerLoadError({});
     } catch (err) {
+      console.log("Failed to load events:", err);
       setError(err?.response?.data?.message || "Failed to load events.");
       setEvents([]);
     } finally {

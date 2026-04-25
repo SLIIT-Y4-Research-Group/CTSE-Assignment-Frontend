@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:3003/api/tickets"; // ticket service
+const API_BASE = "http://event-system-alb-1954530717.ap-south-1.elb.amazonaws.com/api/tickets/api/tickets"; // ticket service
 
 
 export const getAllTickets = async () => {

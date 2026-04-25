@@ -2,7 +2,7 @@
 import { getToken, isTokenExpired, clearToken } from "../auth/token.js";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://event-system-alb-1954530717.ap-south-1.elb.amazonaws.com",
 });
 
 api.interceptors.request.use((config) => {

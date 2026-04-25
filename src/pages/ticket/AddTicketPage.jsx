@@ -43,12 +43,12 @@ const AddTicketPage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const apiBase = "http://localhost:3003/api"; // ticket service
+  const apiBase = "http://event-system-alb-1954530717.ap-south-1.elb.amazonaws.com/api/tickets/api"; // ticket service
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/events");
+        const res = await axios.get("http://event-system-alb-1954530717.ap-south-1.elb.amazonaws.com/api/events/api/events");
         console.log("Events API response:", res.data);
         setEvents(Array.isArray(res.data) ? res.data : res.data.events || []);
       } catch (err) {

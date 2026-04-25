@@ -63,8 +63,10 @@ const ManageTicketsPage = () => {
     setError("");
     try {
       const response = await getAllTickets();
+      console.log("Loaded tickets:", response?.data);
       setTickets(response?.data || []);
     } catch (err) {
+      console.log("Failed to load tickets:", err);
       setError(err?.response?.data?.message || "Failed to load tickets.");
       setTickets([]);
     } finally {
